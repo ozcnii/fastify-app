@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model UserCategory {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  User User[]
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  phone        String         @unique
+  firstName    String
+  lastName     String
+  photo        String?
+  password     String
+  points       Int            @default(0)
+  category     UserCategory   @relation(fields: [categoryId], references: [id])
+  categoryId   Int            @default(1)
+  RefreshToken RefreshToken[]
+}
+
+model RefreshToken {
+  id     Int    @id @default(autoincrement())
+  token  String
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
+}
