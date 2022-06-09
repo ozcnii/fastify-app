@@ -2,7 +2,7 @@ import { compare, hash } from "bcryptjs";
 import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../../../db";
 import {
-  $ref,
+  $authRef,
   LoginDto,
   RefreshDto,
   RegisterDto,
@@ -10,14 +10,14 @@ import {
 import { v4 as uuid } from "uuid";
 import { User } from ".prisma/client";
 
-const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
+const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.post<{ Body: RegisterDto }>(
     "/register",
     {
       schema: {
-        body: $ref("registerSchema"),
+        body: $authRef("registerSchema"),
         response: {
-          201: $ref("registerResponseSchema"),
+          201: $authRef("registerResponseSchema"),
         },
       },
     },
@@ -47,9 +47,9 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     "/login",
     {
       schema: {
-        body: $ref("loginSchema"),
+        body: $authRef("loginSchema"),
         response: {
-          200: $ref("loginResponseSchema"),
+          200: $authRef("loginResponseSchema"),
         },
       },
     },
@@ -131,9 +131,9 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     "/refresh",
     {
       schema: {
-        body: $ref("refreshSchema"),
+        body: $authRef("refreshSchema"),
         response: {
-          200: $ref("registerResponseSchema"),
+          200: $authRef("registerResponseSchema"),
         },
       },
     },
@@ -194,9 +194,9 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     {
       preHandler: fastify.authenticate,
       schema: {
-        headers: $ref("logoutSchema"),
+        headers: $authRef("logoutSchema"),
         response: {
-          200: $ref("logoutResponseSchema"),
+          200: $authRef("logoutResponseSchema"),
         },
       },
     },
@@ -214,6 +214,5 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       };
     }
   );
-  // create route 'me', need access token, return user data
 };
 export default auth;

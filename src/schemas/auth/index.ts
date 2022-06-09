@@ -1,9 +1,15 @@
-import { FastifyPluginAsync } from "fastify";
 import fp from "fastify-plugin";
+import { FastifyPluginAsync } from "fastify";
 import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
-const userCore = {
+export const authorizationHeaderSchema = z.object({
+  authorization: z.string({
+    description: "Bearer {your_token}",
+  }),
+});
+
+export const userCore = {
   id: z.number(),
   email: z.string().email(),
   phone: z.string(),
@@ -45,17 +51,11 @@ const refreshResponseSchema = z.object({
   refreshToken: z.string(),
 });
 
-const logoutSchema = z.object({
-  Authorization: z.string({
-    description: "Bearer {your_token}",
-  }),
-});
-
 const logoutResponseSchema = z.object({
   success: z.boolean(),
 });
 
-const { schemas, $ref } = buildJsonSchemas(
+const { schemas, $ref: $authRef } = buildJsonSchemas(
   {
     registerSchema,
     registerResponseSchema,
@@ -63,13 +63,13 @@ const { schemas, $ref } = buildJsonSchemas(
     loginResponseSchema,
     refreshSchema,
     refreshResponseSchema,
-    logoutSchema,
+    logoutSchema: authorizationHeaderSchema,
     logoutResponseSchema,
   },
   { $id: "auth" }
 );
 
-export { $ref };
+export { $authRef };
 export type RegisterDto = z.infer<typeof registerSchema>;
 export type LoginDto = z.infer<typeof loginSchema>;
 export type RefreshDto = z.infer<typeof refreshSchema>;
