@@ -9,6 +9,7 @@ dotenv.config();
 
 async function init() {
   const app = fastify({ logger: true });
+  const PORT = process.env.PORT!;
 
   app.register(rareLimit, { max: 60, timeWindow: "1 minute" });
   app.register(autoLoad, { dir: join(__dirname, "plugins") });
@@ -16,8 +17,8 @@ async function init() {
   app.register(autoLoad, { dir: join(__dirname, "routes") });
 
   try {
-    await app.listen(3000, "0.0.0.0");
-    console.log(`>> Server start on http://localhost:3000`);
+    await app.listen(PORT, "0.0.0.0");
+    console.log(`>> Server start on http://localhost:${PORT}`);
   } catch (e) {
     await prisma.$disconnect();
     console.error(e);

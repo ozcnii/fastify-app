@@ -1,0 +1,3 @@
+- rename .env.example to .env
+- run ```npm run dev```
+- docs on ```http://localhost:3001``` or your port in .env
