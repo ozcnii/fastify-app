@@ -2,6 +2,7 @@ import fastify from "fastify";
 import dotenv from "dotenv";
 import rareLimit from "@fastify/rate-limit";
 import autoLoad from "@fastify/autoload";
+import cors from "@fastify/cors";
 import { prisma } from "./db";
 import { join } from "path";
 
@@ -11,6 +12,7 @@ async function init() {
   const app = fastify({ logger: true });
   const PORT = process.env.PORT!;
 
+  app.register(cors);
   app.register(rareLimit, { max: 60, timeWindow: "1 minute" });
   app.register(autoLoad, { dir: join(__dirname, "plugins") });
   app.register(autoLoad, { dir: join(__dirname, "routes") });
