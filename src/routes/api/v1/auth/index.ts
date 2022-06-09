@@ -2,10 +2,17 @@ import { compare, hash } from "bcryptjs";
 import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../../../db";
 import {
-  $authRef,
+  AuthorizationSchema,
   LoginDto,
+  LoginResponseSchema,
+  LoginSchema,
+  LogoutResponseSchema,
   RefreshDto,
+  RefreshResponseSchema,
+  RefreshSchema,
   RegisterDto,
+  RegisterResponseSchema,
+  RegisterSchema,
 } from "../../../../schemas/auth";
 import { v4 as uuid } from "uuid";
 import { User } from ".prisma/client";
@@ -15,9 +22,9 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     "/register",
     {
       schema: {
-        body: $authRef("registerSchema"),
+        body: RegisterSchema,
         response: {
-          201: $authRef("registerResponseSchema"),
+          200: RegisterResponseSchema,
         },
       },
     },
@@ -47,9 +54,9 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     "/login",
     {
       schema: {
-        body: $authRef("loginSchema"),
+        body: LoginSchema,
         response: {
-          200: $authRef("loginResponseSchema"),
+          200: LoginResponseSchema,
         },
       },
     },
@@ -131,9 +138,9 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     "/refresh",
     {
       schema: {
-        body: $authRef("refreshSchema"),
+        body: RefreshSchema,
         response: {
-          200: $authRef("registerResponseSchema"),
+          200: RefreshResponseSchema,
         },
       },
     },
@@ -188,15 +195,15 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     }
   );
 
-  // TODO if access-token invalid, jwt-plugin return 500 status-code
+  // // TODO if access-token invalid, jwt-plugin return 500 status-code
   fastify.delete(
     "/logout",
     {
       preHandler: fastify.authenticate,
       schema: {
-        headers: $authRef("logoutSchema"),
+        headers: AuthorizationSchema,
         response: {
-          200: $authRef("logoutResponseSchema"),
+          200: LogoutResponseSchema,
         },
       },
     },

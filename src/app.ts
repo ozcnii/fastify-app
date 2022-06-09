@@ -13,7 +13,6 @@ async function init() {
 
   app.register(rareLimit, { max: 60, timeWindow: "1 minute" });
   app.register(autoLoad, { dir: join(__dirname, "plugins") });
-  app.register(autoLoad, { dir: join(__dirname, "schemas") });
   app.register(autoLoad, { dir: join(__dirname, "routes") });
 
   try {

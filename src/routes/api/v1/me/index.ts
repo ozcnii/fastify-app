@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../../../db";
-import { $meRef } from "../../../../schemas/me";
+import { AuthorizationSchema } from "../../../../schemas/auth";
+import { GetMeResponseSchema } from "../../../../schemas/me";
 
 const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
@@ -8,9 +9,9 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     {
       preHandler: fastify.authenticate,
       schema: {
-        headers: $meRef("getMeSchema"),
+        headers: AuthorizationSchema,
         response: {
-          200: $meRef("getMeResponseSchema"),
+          200: GetMeResponseSchema,
         },
       },
     },
