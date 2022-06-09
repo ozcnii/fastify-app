@@ -39,7 +39,21 @@ const refreshSchema = z.object({
   refreshToken: z.string(),
 });
 
-const refreshResponseSchema = loginResponseSchema;
+const refreshResponseSchema = z.object({
+  ...userCore,
+  accessToken: z.string(),
+  refreshToken: z.string(),
+});
+
+const logoutSchema = z.object({
+  Authorization: z.string({
+    description: "Bearer {your_token}",
+  }),
+});
+
+const logoutResponseSchema = z.object({
+  success: z.boolean(),
+});
 
 const { schemas, $ref } = buildJsonSchemas(
   {
@@ -49,6 +63,8 @@ const { schemas, $ref } = buildJsonSchemas(
     loginResponseSchema,
     refreshSchema,
     refreshResponseSchema,
+    logoutSchema,
+    logoutResponseSchema,
   },
   { $id: "auth" }
 );

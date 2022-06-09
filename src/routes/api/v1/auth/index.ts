@@ -127,7 +127,6 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     throw new Error(errorMessage);
   };
 
-  // get refresh token in body, return user data and 2 new tokens
   fastify.post<{ Body: RefreshDto }>(
     "/refresh",
     {
@@ -189,12 +188,32 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     }
   );
 
-  // get access token and remove all refresh tokens in db
-  fastify.delete("/logout", async function (request, reply) {
-    return {
-      page: "logout",
-    };
-  });
+  // TODO if access-token invalid, jwt-plugin return 500 status-code
+  fastify.delete(
+    "/logout",
+    {
+      preHandler: fastify.authenticate,
+      schema: {
+        headers: $ref("logoutSchema"),
+        response: {
+          200: $ref("logoutResponseSchema"),
+        },
+      },
+    },
+    async function (request) {
+      const { id } = request.user;
+
+      await prisma.refreshToken.deleteMany({
+        where: {
+          userId: id,
+        },
+      });
+
+      return {
+        success: true,
+      };
+    }
+  );
   // create route 'me', need access token, return user data
 };
 export default auth;
