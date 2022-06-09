@@ -145,11 +145,10 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         },
       });
 
-      // TODO COPY
       if (!oldToken)
-        return reply.status(404).send({
-          statusCode: 404,
-          message: "User not found",
+        return reply.status(400).send({
+          statusCode: 400,
+          message: "Invalid refersh token",
         });
 
       const user = await prisma.user.findFirst({
@@ -158,7 +157,6 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         },
       });
 
-      // TODO PASTE
       if (!user)
         return reply.status(404).send({
           statusCode: 404,
@@ -166,6 +164,12 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         });
 
       const newRefreshToken = uuid();
+
+      await prisma.refreshToken.delete({
+        where: {
+          id: oldToken.id,
+        },
+      });
 
       await prisma.refreshToken.create({
         data: {
