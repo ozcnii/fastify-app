@@ -1,7 +1,12 @@
 import { compare, hash } from "bcryptjs";
 import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../../../db";
-import { $ref, LoginDto, RegisterDto } from "../../../../schemas/auth";
+import {
+  $ref,
+  LoginDto,
+  RefreshDto,
+  RegisterDto,
+} from "../../../../schemas/auth";
 import { v4 as uuid } from "uuid";
 import { User } from ".prisma/client";
 
@@ -123,12 +128,62 @@ const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
   };
 
   // get refresh token in body, return user data and 2 new tokens
-  fastify.post("/refresh", async function (request, reply) {
-    // find old refresh token in db and get id
-    return {
-      page: "refresh",
-    };
-  });
+  fastify.post<{ Body: RefreshDto }>(
+    "/refresh",
+    {
+      schema: {
+        body: $ref("refreshSchema"),
+        response: {
+          200: $ref("registerResponseSchema"),
+        },
+      },
+    },
+    async function (request, reply) {
+      const oldToken = await prisma.refreshToken.findFirst({
+        where: {
+          token: request.body.refreshToken,
+        },
+      });
+
+      // TODO COPY
+      if (!oldToken)
+        return reply.status(404).send({
+          statusCode: 404,
+          message: "User not found",
+        });
+
+      const user = await prisma.user.findFirst({
+        where: {
+          id: oldToken?.userId,
+        },
+      });
+
+      // TODO PASTE
+      if (!user)
+        return reply.status(404).send({
+          statusCode: 404,
+          message: "User not found",
+        });
+
+      const newRefreshToken = uuid();
+
+      await prisma.refreshToken.create({
+        data: {
+          token: newRefreshToken,
+          userId: user.id,
+        },
+      });
+
+      return {
+        ...user,
+        accessToken: fastify.jwt.sign(
+          { id: user.id },
+          { expiresIn: process.env.ACCESS_TOKEN_TIME! }
+        ),
+        refreshToken: newRefreshToken,
+      };
+    }
+  );
 
   // get access token and remove all refresh tokens in db
   fastify.delete("/logout", async function (request, reply) {
