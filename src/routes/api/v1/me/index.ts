@@ -100,10 +100,12 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
             password,
           },
         });
+
         return reply.status(200).send({
           message: "Пароль успешно обновлён",
         });
       }
+
       return reply.status(400).send({
         statusCode: 400,
         message: "Неверный код",

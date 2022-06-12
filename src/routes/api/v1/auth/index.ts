@@ -208,7 +208,6 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     }
   );
 
-  // // TODO if access-token invalid, jwt-plugin return 500 status-code
   fastify.delete(
     "/logout",
     {
