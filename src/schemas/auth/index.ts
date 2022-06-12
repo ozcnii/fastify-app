@@ -1,5 +1,5 @@
 import { Static, Type } from "@sinclair/typebox";
-import { okResponseSchema } from "..";
+import { okCoreSchema } from "..";
 
 export const AuthorizationSchema = Type.Object({
   authorization: Type.String({
@@ -46,7 +46,7 @@ export const RefreshResponseSchema = Type.Object({
 });
 
 export const LogoutResponseSchema = Type.Object({
-  ...okResponseSchema,
+  ...okCoreSchema,
 });
 
 export const RegisterResponseSchema = Type.Object({
