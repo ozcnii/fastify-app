@@ -14,8 +14,9 @@ import {
   RegisterResponseSchema,
   RegisterSchema,
 } from "../../../../schemas/auth";
-import { v4 as uuid } from "uuid";
+
 import { User } from ".prisma/client";
+import { signRefreshToken, verifyRefreshToken } from "../../../../helpers/jwt";
 
 const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.post<{ Body: RegisterDto }>(
@@ -44,7 +45,8 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
       } catch (error) {
         return reply.status(403).send({
           statusCode: 403,
-          message: "a user with such a phone number or email exists",
+          message:
+            "Пользователь с такой почтой или номером телефона уже сущетсвует",
         });
       }
     }
@@ -63,7 +65,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     async function (request, reply) {
       const { body: dto } = request;
 
-      if (dto.login[0] === "+" || Number.isInteger(+dto.login[0])) {
+      if (!dto.login.includes("@")) {
         const user = await prisma.user.findFirst({
           where: {
             phone: dto.login,
@@ -74,7 +76,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
           const data = await loginUser(
             user,
             dto,
-            "Invalid phone number or password"
+            "Неверный номер телефона или пароль"
           );
           return reply.send(data);
         } catch (error) {
@@ -94,7 +96,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
       });
 
       try {
-        const data = await loginUser(user, dto, "Invalid email or password");
+        const data = await loginUser(user, dto, "Неверная почта или пароль");
         return reply.send(data);
       } catch (error) {
         if (error instanceof Error) {
@@ -113,7 +115,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     errorMessage: string
   ) => {
     if (user && (await compare(dto.password, user.password))) {
-      const refreshToken = uuid();
+      const refreshToken = await signRefreshToken({ id: user.id });
 
       await prisma.refreshToken.create({
         data: {
@@ -145,17 +147,27 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
       },
     },
     async function (request, reply) {
+      try {
+        await verifyRefreshToken(request.body.refreshToken);
+      } catch (error) {
+        return reply.status(400).send({
+          statusCode: 400,
+          message: "Некорректный рефреш токен",
+        });
+      }
+
       const oldToken = await prisma.refreshToken.findFirst({
         where: {
           token: request.body.refreshToken,
         },
       });
 
-      if (!oldToken)
+      if (!oldToken) {
         return reply.status(400).send({
           statusCode: 400,
-          message: "Invalid refersh token",
+          message: "Некорректный рефреш токен",
         });
+      }
 
       const user = await prisma.user.findFirst({
         where: {
@@ -163,13 +175,14 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         },
       });
 
-      if (!user)
+      if (!user) {
         return reply.status(404).send({
           statusCode: 404,
-          message: "User not found",
+          message: "Пользователь не найден",
         });
+      }
 
-      const newRefreshToken = uuid();
+      const newRefreshToken = await signRefreshToken({ id: user.id });
 
       await prisma.refreshToken.delete({
         where: {
