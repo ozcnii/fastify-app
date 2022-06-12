@@ -230,7 +230,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
       });
 
       return {
-        success: true,
+        message: "Пользователь успешно вышел со всех устройств",
       };
     }
   );

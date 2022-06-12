@@ -17,17 +17,19 @@ model UserCategory {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  phone        String         @unique
-  firstName    String
-  lastName     String
-  photo        String?
-  password     String
-  points       Int            @default(0)
-  category     UserCategory   @relation(fields: [categoryId], references: [id])
-  categoryId   Int            @default(1)
-  RefreshToken RefreshToken[]
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique
+  phone               String         @unique
+  firstName           String
+  lastName            String
+  photo               String?
+  password            String
+  points              Int            @default(0)
+  category            UserCategory   @relation(fields: [categoryId], references: [id])
+  categoryId          Int            @default(1)
+  RefreshToken        RefreshToken[]
+  isRestorePassword   Boolean        @default(false)
+  restorePasswordCode String?
 }
 
 model RefreshToken {
