@@ -8,7 +8,7 @@ export const errorCoreSchema = {
 export const okCoreSchema = { message: Type.String() };
 
 export const errorResponseSchema = Type.Object({
-  ...okCoreSchema,
+  ...errorCoreSchema,
 });
 
 export const okResponseSchema = Type.Object({
