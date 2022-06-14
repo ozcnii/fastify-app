@@ -338,7 +338,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
   );
 
   fastify.post<{ Body: RestorePasswordDto }>(
-    "restore-password",
+    "/restore-password",
     {
       schema: {
         body: RestorePasswordSchema,
