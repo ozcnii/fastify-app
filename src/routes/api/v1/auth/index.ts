@@ -285,7 +285,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         reply.status(200).send({
           message: "Сообщение успешно отправлено",
         });
-      } catch {
+      } catch (error) {
         return reply.status(500).send({
           statusCode: 500,
           message: "Произошла ошибка при отправке письма",
