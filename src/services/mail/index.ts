@@ -1,19 +1,19 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
+  host: "smtp.gmail.com",
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: "testAccount.user", // generated ethereal user
-    pass: "testAccount.pass", // generated ethereal password
+    user: process.env.EMAIL_LOGIN!, // generated ethereal user
+    pass: process.env.EMAIL_PASSWORD!, // generated ethereal password
   },
 });
 
 export const MailService = {
   restorePassword: async (to: string, restoreCode: string) => {
     await transporter.sendMail({
-      from: '"Fred Foo 👻" <foo@example.com>', // sender address
+      from: `"Fred Foo 👻" ${process.env.EMAIL_LOGIN!}`, // sender address
       to, //: "bar@example.com, baz@example.com", // list of receivers
       subject: "Hello ✔", // Subject line
       text: "Hello world?", // plain text body

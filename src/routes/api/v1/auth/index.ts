@@ -3,6 +3,8 @@ import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../../../db";
 import {
   AuthorizationSchema,
+  GetCodeDto,
+  GetCodeSchema,
   LoginDto,
   LoginResponseSchema,
   LoginSchema,
@@ -13,10 +15,16 @@ import {
   RegisterDto,
   RegisterResponseSchema,
   RegisterSchema,
+  RestorePasswordDto,
+  RestorePasswordSchema,
+  VerifyCodeDto,
+  VerifyCodeSchema,
 } from "../../../../schemas/auth";
 
 import { User } from ".prisma/client";
 import { signRefreshToken, verifyRefreshToken } from "../../../../helpers/jwt";
+import { errorResponseSchema, okResponseSchema } from "../../../../schemas";
+import { MailService } from "../../../../services/mail";
 
 const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.post<{ Body: RegisterDto }>(
@@ -26,6 +34,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         body: RegisterSchema,
         response: {
           200: RegisterResponseSchema,
+          403: errorResponseSchema,
         },
       },
     },
@@ -59,6 +68,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         body: LoginSchema,
         response: {
           200: LoginResponseSchema,
+          403: errorResponseSchema,
         },
       },
     },
@@ -143,6 +153,8 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         body: RefreshSchema,
         response: {
           200: RefreshResponseSchema,
+          400: errorResponseSchema,
+          404: errorResponseSchema,
         },
       },
     },
@@ -216,6 +228,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         headers: AuthorizationSchema,
         response: {
           200: LogoutResponseSchema,
+          401: errorResponseSchema,
         },
       },
     },
@@ -231,6 +244,144 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
       return {
         message: "Пользователь успешно вышел со всех устройств",
       };
+    }
+  );
+
+  fastify.post<{ Body: GetCodeDto }>(
+    "/get-code",
+    {
+      schema: {
+        body: GetCodeSchema,
+        response: {
+          200: okResponseSchema,
+          404: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+      },
+    },
+    async function (request, reply) {
+      const { email } = request.body;
+      const user = await prisma.user.findFirst({ where: { email } });
+
+      if (!user) {
+        return reply.status(404).send({
+          statusCode: 404,
+          message: "Пользователь не найден",
+        });
+      }
+
+      const restorePasswordCode = "RESTORE_CODE";
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          isRestorePassword: false,
+          restorePasswordCode,
+        },
+      });
+
+      try {
+        await MailService.restorePassword(user.email, restorePasswordCode);
+        reply.status(200).send({
+          message: "Сообщение успешно отправлено",
+        });
+      } catch {
+        return reply.status(500).send({
+          statusCode: 500,
+          message: "Произошла ошибка при отправке письма",
+        });
+      }
+    }
+  );
+
+  fastify.post<{ Body: VerifyCodeDto }>(
+    "/verify-code",
+    {
+      schema: {
+        body: VerifyCodeSchema,
+        response: {
+          200: okResponseSchema,
+          404: errorResponseSchema,
+          400: errorResponseSchema,
+        },
+      },
+    },
+    async function (request, reply) {
+      const { code, email } = request.body;
+      const user = await prisma.user.findFirst({ where: { email } });
+
+      if (!user) {
+        return reply.status(404).send({
+          statusCode: 404,
+          message: "Пользователь не найден",
+        });
+      }
+
+      if (user.restorePasswordCode === code) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            isRestorePassword: true,
+            restorePasswordCode: null,
+          },
+        });
+        return reply.status(200).send({
+          message: "Код корректен",
+        });
+      }
+
+      return reply.status(400).send({
+        statusCode: 400,
+        message: "Некорректный код",
+      });
+    }
+  );
+
+  fastify.post<{ Body: RestorePasswordDto }>(
+    "restore-password",
+    {
+      schema: {
+        body: RestorePasswordSchema,
+        response: {
+          200: okResponseSchema,
+          404: errorResponseSchema,
+          400: errorResponseSchema,
+        },
+      },
+    },
+    async function (request, reply) {
+      const { email, newPassword } = request.body;
+
+      const user = await prisma.user.findFirst({ where: { email } });
+
+      if (!user) {
+        return reply.status(404).send({
+          statusCode: 404,
+          message: "Пользователь не найден",
+        });
+      }
+
+      if (!user.isRestorePassword) {
+        return reply.status(400).send({
+          statusCode: 400,
+          message: "Пользователь не восстанавливал пароль",
+        });
+      }
+
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          isRestorePassword: false,
+          restorePasswordCode: null,
+          password: newPassword,
+        },
+      });
+
+      return reply.send({
+        message: "Пароль успешно обновлен",
+      });
     }
   );
 };

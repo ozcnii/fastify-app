@@ -53,6 +53,23 @@ export const RegisterResponseSchema = Type.Object({
   ...userCore,
 });
 
+export const GetCodeSchema = Type.Object({
+  email: Type.String({ format: "email" }),
+});
+
+export const VerifyCodeSchema = Type.Object({
+  email: Type.String({ format: "email" }),
+  code: Type.String(),
+});
+
+export const RestorePasswordSchema = Type.Object({
+  email: Type.String({ format: "email" }),
+  newPassword: Type.String(),
+});
+
 export type RegisterDto = Static<typeof RegisterSchema>;
 export type LoginDto = Static<typeof LoginSchema>;
 export type RefreshDto = Static<typeof RefreshSchema>;
+export type GetCodeDto = Static<typeof GetCodeSchema>;
+export type VerifyCodeDto = Static<typeof VerifyCodeSchema>;
+export type RestorePasswordDto = Static<typeof RestorePasswordSchema>;
