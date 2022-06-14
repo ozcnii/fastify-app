@@ -367,7 +367,8 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
           message: "Пользователь не восстанавливал пароль",
         });
       }
-
+      const hashNewPassword = await hash(newPassword, +process.env.SALT!);
+      
       await prisma.user.update({
         where: {
           id: user.id,
@@ -375,7 +376,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         data: {
           isRestorePassword: false,
           restorePasswordCode: null,
-          password: newPassword,
+          password: hashNewPassword,
         },
       });
 
