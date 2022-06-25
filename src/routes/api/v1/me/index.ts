@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from "fastify";
-import { prisma } from "../../../../db";
+import { meController } from "../../../../controllers/me/me.controller";
 import { AuthorizationSchema } from "../../../../schemas/auth";
 import { GetMeResponseSchema } from "../../../../schemas/me";
 
@@ -15,10 +15,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         },
       },
     },
-    async function (request) {
-      const { id } = request.user;
-      return await prisma.user.findFirst({ where: { id } });
-    }
+    meController.getMe
   );
 };
 
