@@ -1,4 +1,4 @@
 - rename `.env.example` to `.env`
 - change `EMAIL_LOGIN` and `EMAIL_PASSWORD`
-- run `first` for install dependencies, generate prisma schemas and run server
+- run `npm run first` for install dependencies, generate prisma schemas and run server
 - docs on `http://localhost:3001/docs` or your port in .env
