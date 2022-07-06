@@ -1,5 +1,4 @@
-- rename .env.example to .env
-- run ```npm i```
-- run ```npx prisma generate```
-- run ```npm run dev```
-- docs on ```http://localhost:3001/docs``` or your port in .env
+- rename `.env.example` to `.env`
+- change `EMAIL_LOGIN` and `EMAIL_PASSWORD`
+- run `first for install dependencies, generate prisma schemas and run server`
+- docs on `http://localhost:3001/docs` or your port in .env

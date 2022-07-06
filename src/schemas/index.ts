@@ -7,10 +7,10 @@ export const errorCoreSchema = {
 
 export const okCoreSchema = { message: Type.String() };
 
-export const errorResponseSchema = Type.Object({
+export const ErrorResponseSchema = Type.Object({
   ...errorCoreSchema,
 });
 
-export const okResponseSchema = Type.Object({
+export const OkResponseSchema = Type.Object({
   ...okCoreSchema,
 });

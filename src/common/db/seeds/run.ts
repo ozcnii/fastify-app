@@ -1,4 +1,4 @@
-import { userCategoriesSeed } from "./user-categories";
+import { userCategoriesSeed } from "./user-categories.seed";
 
 const run = async () => {
   await userCategoriesSeed();

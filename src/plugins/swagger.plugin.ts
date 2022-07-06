@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from "fastify";
 import swagger from "@fastify/swagger";
 import fp from "fastify-plugin";
 
-const swaggerPlugin: FastifyPluginAsync = async (fastify, opts) => {
+const swaggerPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.register(swagger, {
     routePrefix: "/docs",
     exposeRoute: true,

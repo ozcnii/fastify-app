@@ -24,10 +24,14 @@ export const RegisterSchema = Type.Object({
   password: Type.String({ minLength: 6, maxLength: 256 }),
 });
 
+export type RegisterDto = Static<typeof RegisterSchema>;
+
 export const LoginSchema = Type.Object({
   login: Type.String({ maxLength: 256 }),
   password: Type.String({ minLength: 6, maxLength: 256 }),
 });
+
+export type LoginDto = Static<typeof LoginSchema>;
 
 export const LoginResponseSchema = Type.Object({
   ...userCore,
@@ -67,8 +71,6 @@ export const RestorePasswordSchema = Type.Object({
   newPassword: Type.String(),
 });
 
-export type RegisterDto = Static<typeof RegisterSchema>;
-export type LoginDto = Static<typeof LoginSchema>;
 export type RefreshDto = Static<typeof RefreshSchema>;
 export type GetCodeDto = Static<typeof GetCodeSchema>;
 export type VerifyCodeDto = Static<typeof VerifyCodeSchema>;

@@ -4,7 +4,7 @@ import rareLimit from "@fastify/rate-limit";
 import autoLoad from "@fastify/autoload";
 import sensible from "@fastify/sensible";
 import cors from "@fastify/cors";
-import { prisma } from "./db";
+import { prisma } from "./common/db";
 import { join } from "path";
 
 dotenv.config();

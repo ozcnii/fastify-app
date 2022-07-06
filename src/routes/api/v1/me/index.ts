@@ -1,9 +1,9 @@
 import { FastifyPluginAsync } from "fastify";
-import { meController } from "../../../../controllers/me/me.controller";
+import { prisma } from "../../../../common/db";
 import { AuthorizationSchema } from "../../../../schemas/auth";
 import { GetMeResponseSchema } from "../../../../schemas/me";
 
-const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
+const me: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     "/",
     {
@@ -15,8 +15,11 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         },
       },
     },
-    meController.getMe
+    async (request) => {
+      const { id } = request.user;
+      return await prisma.user.findFirst({ where: { id } });
+    }
   );
 };
 
-export default auth;
+export default me;
