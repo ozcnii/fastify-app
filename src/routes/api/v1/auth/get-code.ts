@@ -9,6 +9,7 @@ const getCode: FastifyPluginAsync = async (fastify) => {
     "/get-code",
     {
       schema: {
+        tags: ["auth"],
         body: GetCodeSchema,
         response: {
           200: OkResponseSchema,

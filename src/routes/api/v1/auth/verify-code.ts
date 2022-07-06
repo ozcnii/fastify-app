@@ -8,6 +8,7 @@ const verifyCode: FastifyPluginAsync = async (fastify) => {
     "/verify-code",
     {
       schema: {
+        tags: ["auth"],
         body: VerifyCodeSchema,
         response: {
           200: OkResponseSchema,

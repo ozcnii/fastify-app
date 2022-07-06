@@ -9,9 +9,10 @@ import {
 
 const restorePassword: FastifyPluginAsync = async (fastify) => {
   fastify.post<{ Body: RestorePasswordDto }>(
-    "/restore-password",
+    "/",
     {
       schema: {
+        tags: ["auth"],
         body: RestorePasswordSchema,
         response: {
           200: OkResponseSchema,

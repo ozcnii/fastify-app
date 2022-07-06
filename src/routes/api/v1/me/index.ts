@@ -9,6 +9,7 @@ const me: FastifyPluginAsync = async (fastify): Promise<void> => {
     {
       preHandler: fastify.authenticate,
       schema: {
+        tags: ["me"],
         headers: AuthorizationSchema,
         response: {
           200: GetMeResponseSchema,

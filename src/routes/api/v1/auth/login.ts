@@ -14,6 +14,7 @@ const login: FastifyPluginAsync = async (fastify) => {
     "/login",
     {
       schema: {
+        tags: ["auth"],
         body: LoginSchema,
         response: {
           200: LoginResponseSchema,

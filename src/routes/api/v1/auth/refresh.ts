@@ -13,6 +13,7 @@ const refresh: FastifyPluginAsync = async (fastify) => {
     "/refresh",
     {
       schema: {
+        tags: ["auth"],
         body: RefreshSchema,
         response: {
           200: RefreshResponseSchema,

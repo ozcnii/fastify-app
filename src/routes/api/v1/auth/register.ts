@@ -13,6 +13,7 @@ const register: FastifyPluginAsync = async (fastify) => {
     "/register",
     {
       schema: {
+        tags: ["auth"],
         body: RegisterSchema,
         response: {
           201: RegisterResponseSchema,

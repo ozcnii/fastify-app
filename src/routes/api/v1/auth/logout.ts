@@ -12,6 +12,7 @@ const register: FastifyPluginAsync = async (fastify) => {
     {
       preHandler: fastify.authenticate,
       schema: {
+        tags: ["auth"],
         headers: AuthorizationSchema,
         response: {
           200: LogoutResponseSchema,
